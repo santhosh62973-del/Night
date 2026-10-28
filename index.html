@@ -1,35 +1,92 @@
-!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>S. Santhosh</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: white;
-      text-align: center;
-    }
-    .card {
-      background: rgba(255,255,255,0.15);
-      padding: 30px;
-      border-radius: 16px;
-    }
-    h1 { margin: 0 0 10px; }
-    p { font-size: 20px; margin: 6px 0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My App</title>
+<style>
+  :root { --bg:#f5f7fb; --ink:#1b2437; --accent:#2457d6; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Arial, sans-serif; background:var(--bg); color:var(--ink); }
+  .page { display:none; min-height:100vh; padding:20px; max-width:480px; margin:0 auto; }
+  .page.active { display:block; }
+  h1 { font-size:26px; margin:10px 0 16px; }
+  img { width:100%; border-radius:12px; display:block; background:#dde3f0; min-height:200px; object-fit:cover; }
+  label { display:block; margin:14px 0 6px; font-weight:bold; }
+  input, select, textarea { width:100%; padding:12px; border:1px solid #b9c2d6; border-radius:8px; font-size:16px; background:#fff; }
+  button { width:100%; margin-top:20px; padding:14px; font-size:17px; border:0; border-radius:10px; background:var(--accent); color:#fff; }
+  button.back { background:#e3e8f4; color:var(--ink); margin-top:10px; }
+  .msg { color:#b3261e; margin-top:10px; min-height:20px; }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Hello World</h1>
-    <p>I am S. Santhosh</p>
-    <p>My age is: 19</p>
-  </div>
+
+<!-- PAGE 1: first image -->
+<div class="page active" id="page1">
+  <h1>Welcome</h1>
+  <img src="image1.jpg" alt="First image">
+  <button onclick="showPage(2)">Next</button>
+</div>
+
+<!-- PAGE 2: details form -->
+<div class="page" id="page2">
+  <h1>Enter details</h1>
+
+  <label for="name">Full name</label>
+  <input id="name" type="text" placeholder="Enter full name">
+
+  <label for="age">Age</label>
+  <input id="age" type="number" placeholder="Enter age">
+
+  <label for="gender">Gender</label>
+  <select id="gender">
+    <option value="">Select</option>
+    <option>Male</option>
+    <option>Female</option>
+    <option>Other</option>
+  </select>
+
+  <label for="phone">Phone number</label>
+  <input id="phone" type="tel" placeholder="Enter phone number">
+
+  <label for="email">Email</label>
+  <input id="email" type="email" placeholder="Enter email">
+
+  <label for="address">Address</label>
+  <textarea id="address" rows="3" placeholder="Enter address"></textarea>
+
+  <div class="msg" id="msg"></div>
+  <button onclick="submitDetails()">Submit</button>
+  <button class="back" onclick="showPage(1)">Back</button>
+</div>
+
+<!-- PAGE 3: college image -->
+<div class="page" id="page3">
+  <h1>Our college</h1>
+  <img src="college.jpg" alt="College">
+  <button class="back" onclick="showPage(2)">Back</button>
+</div>
+
+<script>
+  function showPage(n) {
+    document.querySelectorAll('.page').forEach(function (p) {
+      p.classList.remove('active');
+    });
+    document.getElementById('page' + n).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function submitDetails() {
+    var ids = ['name', 'age', 'gender', 'phone', 'email', 'address'];
+    for (var i = 0; i < ids.length; i++) {
+      if (!document.getElementById(ids[i]).value.trim()) {
+        document.getElementById('msg').textContent = 'Please fill in all the details.';
+        return;
+      }
+    }
+    document.getElementById('msg').textContent = '';
+    showPage(3);
+  }
+</script>
 </body>
 </html>
