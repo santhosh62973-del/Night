@@ -5,26 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My App</title>
 <style>
-  :root { --bg:#f5f7fb; --ink:#1b2437; --accent:#2457d6; }
+  :root { --bg:#fff8ec; --ink:#2a2118; --accent:#e8710a; }
   * { box-sizing:border-box; }
   body { margin:0; font-family:Arial, sans-serif; background:var(--bg); color:var(--ink); }
   .page { display:none; min-height:100vh; padding:20px; max-width:480px; margin:0 auto; }
   .page.active { display:block; }
   h1 { font-size:26px; margin:10px 0 16px; }
-  img { width:100%; border-radius:12px; display:block; background:#dde3f0; min-height:200px; object-fit:cover; }
+  img { width:100%; border-radius:12px; display:block; background:#f3e3c6; min-height:200px; object-fit:cover; }
   label { display:block; margin:14px 0 6px; font-weight:bold; }
-  input, select, textarea { width:100%; padding:12px; border:1px solid #b9c2d6; border-radius:8px; font-size:16px; background:#fff; }
+  input, select, textarea { width:100%; padding:12px; border:1px solid #d8c9ad; border-radius:8px; font-size:16px; background:#fff; }
   button { width:100%; margin-top:20px; padding:14px; font-size:17px; border:0; border-radius:10px; background:var(--accent); color:#fff; }
-  button.back { background:#e3e8f4; color:var(--ink); margin-top:10px; }
+  button.back { background:#f0e4cc; color:var(--ink); margin-top:10px; }
   .msg { color:#b3261e; margin-top:10px; min-height:20px; }
+  .college { background:#fff; border:1px solid #e6d8bc; border-radius:10px; padding:12px; margin-top:10px; }
+  .college b { display:block; margin-bottom:8px; }
+  .college a { display:inline-block; padding:8px 12px; background:var(--accent); color:#fff; border-radius:8px; text-decoration:none; font-size:15px; }
+  .empty { margin-top:14px; color:#7a6a52; }
 </style>
 </head>
 <body>
 
-<!-- PAGE 1: first image -->
+<!-- PAGE 1: sun image -->
 <div class="page active" id="page1">
   <h1>Welcome</h1>
-  <img src="image1.jpg" alt="First image">
+  <img src="sun.jpg" alt="Sun">
   <button onclick="showPage(2)">Next</button>
 </div>
 
@@ -60,20 +64,47 @@
   <button class="back" onclick="showPage(1)">Back</button>
 </div>
 
-<!-- PAGE 3: college image -->
+<!-- PAGE 3: Gnanamani College image -->
 <div class="page" id="page3">
-  <h1>Our college</h1>
-  <img src="college.jpg" alt="College">
+  <h1>Gnanamani College</h1>
+  <img src="college.jpg" alt="Gnanamani College">
+  <button onclick="showPage(4)">Search colleges in Namakkal</button>
   <button class="back" onclick="showPage(2)">Back</button>
 </div>
 
+<!-- PAGE 4: search colleges around Namakkal -->
+<div class="page" id="page4">
+  <h1>Colleges around Namakkal</h1>
+  <input id="search" type="text" placeholder="Type a college name" oninput="filterColleges()">
+  <div id="list"></div>
+  <div class="empty" id="empty" style="display:none;">No college found. Try the map search below.</div>
+  <a href="https://www.google.com/maps/search/colleges+in+Namakkal" target="_blank">
+    <button>Search all on Google Maps</button>
+  </a>
+  <button class="back" onclick="showPage(3)">Back</button>
+</div>
+
 <script>
+  var colleges = [
+    "Gnanamani College of Technology",
+    "Paavai Engineering College",
+    "Mahendra Engineering College",
+    "Muthayammal Engineering College",
+    "K.S.R. College of Engineering",
+    "Sengunthar Engineering College",
+    "Excel Engineering College",
+    "Vivekanandha College of Engineering",
+    "Government Arts College Namakkal",
+    "P.G.P. College of Arts and Science"
+  ];
+
   function showPage(n) {
     document.querySelectorAll('.page').forEach(function (p) {
       p.classList.remove('active');
     });
     document.getElementById('page' + n).classList.add('active');
     window.scrollTo(0, 0);
+    if (n === 4) { filterColleges(); }
   }
 
   function submitDetails() {
@@ -86,6 +117,23 @@
     }
     document.getElementById('msg').textContent = '';
     showPage(3);
+  }
+
+  function filterColleges() {
+    var text = document.getElementById('search').value.toLowerCase();
+    var list = document.getElementById('list');
+    var count = 0;
+    list.innerHTML = '';
+    colleges.forEach(function (name) {
+      if (name.toLowerCase().indexOf(text) !== -1) {
+        count++;
+        var url = 'https://www.google.com/maps/search/' + encodeURIComponent(name + ' Namakkal');
+        list.innerHTML +=
+          '<div class="college"><b>' + name + '</b>' +
+          '<a href="' + url + '" target="_blank">Open in Maps</a></div>';
+      }
+    });
+    document.getElementById('empty').style.display = count === 0 ? 'block' : 'none';
   }
 </script>
 </body>
