@@ -1,140 +1,172 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My App</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Father’s Legend</title>
 <style>
-  :root { --bg:#fff8ec; --ink:#2a2118; --accent:#e8710a; }
-  * { box-sizing:border-box; }
-  body { margin:0; font-family:Arial, sans-serif; background:var(--bg); color:var(--ink); }
-  .page { display:none; min-height:100vh; padding:20px; max-width:480px; margin:0 auto; }
-  .page.active { display:block; }
-  h1 { font-size:26px; margin:10px 0 16px; }
-  img { width:100%; border-radius:12px; display:block; background:#f3e3c6; min-height:200px; object-fit:cover; }
-  label { display:block; margin:14px 0 6px; font-weight:bold; }
-  input, select, textarea { width:100%; padding:12px; border:1px solid #d8c9ad; border-radius:8px; font-size:16px; background:#fff; }
-  button { width:100%; margin-top:20px; padding:14px; font-size:17px; border:0; border-radius:10px; background:var(--accent); color:#fff; }
-  button.back { background:#f0e4cc; color:var(--ink); margin-top:10px; }
-  .msg { color:#b3261e; margin-top:10px; min-height:20px; }
-  .college { background:#fff; border:1px solid #e6d8bc; border-radius:10px; padding:12px; margin-top:10px; }
-  .college b { display:block; margin-bottom:8px; }
-  .college a { display:inline-block; padding:8px 12px; background:var(--accent); color:#fff; border-radius:8px; text-decoration:none; font-size:15px; }
-  .empty { margin-top:14px; color:#7a6a52; }
+:root{--bg:#0b0d14;--card:#151a28;--gold:#e8b84a;--text:#f1ece0;--dim:#9aa1b5;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif}
+body{display:flex;justify-content:center;background:radial-gradient(circle at 50% 0%,#1d2540,var(--bg) 60%)}
+#app{width:100%;max-width:480px;min-height:100%;padding:20px;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.screen{display:none;animation:fade .8s ease}
+.screen.on{display:block}
+#s-front.on{display:flex;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:flex-end;padding:24px 24px calc(48px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,#0000 35%,#000d 100%),url(front.jpg) center top/cover no-repeat,var(--bg);text-shadow:0 2px 12px #000}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.photo{width:190px;height:190px;border-radius:50%;margin:0 auto 20px;border:3px solid var(--gold);box-shadow:0 0 40px #e8b84a55;object-fit:cover;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:64px;overflow:hidden}
+.photo.sm{width:110px;height:110px;font-size:40px;margin-bottom:14px}
+h1{font-size:30px;color:var(--gold);letter-spacing:1px;margin-bottom:8px}
+h2{font-size:20px;color:var(--gold);margin-bottom:14px}
+.sub{color:var(--dim);font-style:italic;margin-bottom:26px}
+button,input{font:inherit}
+.btn{background:var(--gold);color:#1a1405;border:0;border-radius:30px;padding:14px 34px;font-weight:bold;font-size:17px;cursor:pointer;margin:6px}
+.btn.ghost{background:transparent;color:var(--gold);border:1px solid var(--gold);font-size:14px;padding:8px 18px}
+input[type=text]{width:100%;padding:14px;border-radius:12px;border:1px solid var(--gold);background:var(--card);color:var(--text);font-size:18px;text-align:center;margin-bottom:16px}
+.box{background:var(--card);border:1px solid #2a3150;border-radius:16px;padding:22px;min-height:210px;text-align:left;line-height:1.7;font-size:18px}
+.prog{height:4px;background:#222a44;border-radius:4px;margin:0 0 16px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--gold);transition:width .5s}
+.hint{color:var(--dim);font-size:13px;margin-top:10px}
 </style>
 </head>
 <body>
+<div id="app">
 
-<!-- PAGE 1: sun image -->
-<div class="page active" id="page1">
-  <h1>Welcome</h1>
-  <img src="sun.jpg" alt="Sun">
-  <button onclick="showPage(2)">Next</button>
-</div>
+<!-- 1. FRONT SCREEN -->
+<section class="screen on" id="s-front">
+  <h1 id="gameTitle"></h1>
+  <p class="sub">A story of courage, told for the one who came after.</p>
+  <button class="btn" id="start">Begin</button><br>
+  <button class="btn ghost" id="pick">Choose father’s photo</button>
+  <input type="file" id="file" accept="image/*" hidden>
+</section>
 
-<!-- PAGE 2: details form -->
-<div class="page" id="page2">
-  <h1>Enter details</h1>
+<!-- 2. NAME -->
+<section class="screen" id="s-name">
+  <h2>Before we begin…</h2>
+  <p class="sub">What is your name, traveller?</p>
+  <input type="text" id="nameIn" maxlength="20" placeholder="Enter your name" autocomplete="off">
+  <button class="btn" id="nameGo">Continue</button>
+</section>
 
-  <label for="name">Full name</label>
-  <input id="name" type="text" placeholder="Enter full name">
+<!-- 3. STORY -->
+<section class="screen" id="s-story">
+  <div class="photo sm" id="photo2">⚔️</div>
+  <div class="prog"><i id="bar"></i></div>
+  <h2 id="chTitle"></h2>
+  <div class="box" id="chText"></div>
+  <p class="hint">Tap the button to continue</p>
+  <button class="btn" id="next">Next</button>
+</section>
 
-  <label for="age">Age</label>
-  <input id="age" type="number" placeholder="Enter age">
+<!-- 4. END -->
+<section class="screen" id="s-end">
+  <div class="photo sm" id="photo3">⚔️</div>
+  <h2 id="endTitle"></h2>
+  <div class="box" id="endText"></div><br>
+  <button class="btn" id="again">Play again</button>
+</section>
 
-  <label for="gender">Gender</label>
-  <select id="gender">
-    <option value="">Select</option>
-    <option>Male</option>
-    <option>Female</option>
-    <option>Other</option>
-  </select>
-
-  <label for="phone">Phone number</label>
-  <input id="phone" type="tel" placeholder="Enter phone number">
-
-  <label for="email">Email</label>
-  <input id="email" type="email" placeholder="Enter email">
-
-  <label for="address">Address</label>
-  <textarea id="address" rows="3" placeholder="Enter address"></textarea>
-
-  <div class="msg" id="msg"></div>
-  <button onclick="submitDetails()">Submit</button>
-  <button class="back" onclick="showPage(1)">Back</button>
-</div>
-
-<!-- PAGE 3: Gnanamani College image -->
-<div class="page" id="page3">
-  <h1>Gnanamani College</h1>
-  <img src="college.jpg" alt="Gnanamani College">
-  <button onclick="showPage(4)">Search colleges in Namakkal</button>
-  <button class="back" onclick="showPage(2)">Back</button>
-</div>
-
-<!-- PAGE 4: search colleges around Namakkal -->
-<div class="page" id="page4">
-  <h1>Colleges around Namakkal</h1>
-  <input id="search" type="text" placeholder="Type a college name" oninput="filterColleges()">
-  <div id="list"></div>
-  <div class="empty" id="empty" style="display:none;">No college found. Try the map search below.</div>
-  <a href="https://www.google.com/maps/search/colleges+in+Namakkal" target="_blank">
-    <button>Search all on Google Maps</button>
-  </a>
-  <button class="back" onclick="showPage(3)">Back</button>
 </div>
 
 <script>
-  var colleges = [
-    "Gnanamani College of Technology",
-    "Paavai Engineering College",
-    "Mahendra Engineering College",
-    "Muthayammal Engineering College",
-    "K.S.R. College of Engineering",
-    "Sengunthar Engineering College",
-    "Excel Engineering College",
-    "Vivekanandha College of Engineering",
-    "Government Arts College Namakkal",
-    "P.G.P. College of Arts and Science"
-  ];
+/* ============ EDIT ONLY THIS PART ============ */
+const CONFIG = {
+  gameTitle: "My Father’s Legend",
+  fatherName: "Appa",
+  photo: "father.jpg",   // upload your image to the same repo with this exact name
+  inspiration: "the great warriors of old",
+  intro: "Long ago, in a land of red earth and tall banyan trees, a man was born who would never bow to fear. They called him {father}. This is his story, {name}, and one day it will be yours too.",
+  chapters: [
+    {t:"The Boy of the Village", x:"{father} grew up with little, but his heart was full. He listened to stories of {inspiration} and promised himself he would be brave like them."},
+    {t:"The First Trial", x:"Hard days came. Hunger, doubt and tired hands tried to stop him. But {father} stood up every single time, because giving up was never his way."},
+    {t:"The Fire Within", x:"Like {inspiration}, he fought his own great battles: for his family, for honour, for tomorrow. Every scar on his hands became a lesson."},
+    {t:"The Victory", x:"He won, not with a sword, but with patience and sacrifice. Everything he built, he built so that you, {name}, could stand taller than he did."},
+    {t:"The Gift", x:"His greatest treasure was never gold. It was courage, handed down from father to child. Now it is in your hands, {name}."}
+  ],
+  endTitle: "The Legend Continues",
+  ending: "{name}, you carry {father}’s strength in your name and in your heart. Walk bravely. The next chapter is yours to write."
+};
+/* ============================================ */
 
-  function showPage(n) {
-    document.querySelectorAll('.page').forEach(function (p) {
-      p.classList.remove('active');
-    });
-    document.getElementById('page' + n).classList.add('active');
-    window.scrollTo(0, 0);
-    if (n === 4) { filterColleges(); }
-  }
+const $ = id => document.getElementById(id);
+let name = "Traveller", idx = -1, timer = null;
+const fill = s => s.replace(/{name}/g, name).replace(/{father}/g, CONFIG.fatherName).replace(/{inspiration}/g, CONFIG.inspiration);
 
-  function submitDetails() {
-    var ids = ['name', 'age', 'gender', 'phone', 'email', 'address'];
-    for (var i = 0; i < ids.length; i++) {
-      if (!document.getElementById(ids[i]).value.trim()) {
-        document.getElementById('msg').textContent = 'Please fill in all the details.';
-        return;
-      }
-    }
-    document.getElementById('msg').textContent = '';
-    showPage(3);
-  }
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  $(id).classList.add('on');
+}
 
-  function filterColleges() {
-    var text = document.getElementById('search').value.toLowerCase();
-    var list = document.getElementById('list');
-    var count = 0;
-    list.innerHTML = '';
-    colleges.forEach(function (name) {
-      if (name.toLowerCase().indexOf(text) !== -1) {
-        count++;
-        var url = 'https://www.google.com/maps/search/' + encodeURIComponent(name + ' Namakkal');
-        list.innerHTML +=
-          '<div class="college"><b>' + name + '</b>' +
-          '<a href="' + url + '" target="_blank">Open in Maps</a></div>';
-      }
-    });
-    document.getElementById('empty').style.display = count === 0 ? 'block' : 'none';
+function setPhoto(src){
+  ['photo2','photo3'].forEach(id => {
+    $(id).innerHTML = '<img src="' + src + '" alt="" style="width:100%;height:100%;object-fit:cover">';
+  });
+}
+function tryPhoto(){
+  const im = new Image();
+  im.onload = () => setPhoto(CONFIG.photo);
+  im.src = CONFIG.photo;
+}
+
+function type(el, text, done){
+  clearInterval(timer);
+  let i = 0; el.textContent = "";
+  timer = setInterval(() => {
+    el.textContent = text.slice(0, ++i);
+    if (i >= text.length){ clearInterval(timer); timer = null; if (done) done(); }
+  }, 28);
+  el.onclick = () => { if (timer){ clearInterval(timer); timer = null; el.textContent = text; if (done) done(); } };
+}
+
+function chapter(){
+  const c = CONFIG.chapters[idx];
+  $('chTitle').textContent = (idx + 1) + ". " + c.t;
+  $('bar').style.width = ((idx + 1) / CONFIG.chapters.length * 100) + "%";
+  $('next').textContent = idx === CONFIG.chapters.length - 1 ? "Finish" : "Next";
+  type($('chText'), fill(c.x));
+}
+
+$('gameTitle').textContent = CONFIG.gameTitle;
+document.title = CONFIG.gameTitle;
+tryPhoto();
+
+$('pick').onclick = () => $('file').click();
+$('file').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader(); r.onload = () => setPhoto(r.result); r.readAsDataURL(f);
+};
+
+$('start').onclick = () => {
+  let saved = ""; try { saved = localStorage.getItem('fg_name') || ""; } catch(e){}
+  $('nameIn').value = saved; show('s-name');
+};
+
+$('nameGo').onclick = () => {
+  const v = $('nameIn').value.trim();
+  if (!v){ $('nameIn').focus(); return; }
+  name = v; try { localStorage.setItem('fg_name', v); } catch(e){}
+  idx = -1; show('s-story');
+  $('chTitle').textContent = "Prologue";
+  $('bar').style.width = "0";
+  $('next').textContent = "Next";
+  type($('chText'), fill(CONFIG.intro));
+};
+$('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('nameGo').click(); });
+
+$('next').onclick = () => {
+  if (timer){ $('chText').click(); return; }
+  idx++;
+  if (idx >= CONFIG.chapters.length){
+    show('s-end');
+    $('endTitle').textContent = CONFIG.endTitle;
+    type($('endText'), fill(CONFIG.ending));
+    return;
   }
+  chapter();
+};
+
+$('again').onclick = () => { idx = -1; show('s-front'); };
 </script>
 </body>
 </html>
