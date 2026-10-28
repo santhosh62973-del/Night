@@ -1,172 +1,300 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>My Father’s Legend</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Temple Runner</title>
 <style>
-:root{--bg:#0b0d14;--card:#151a28;--gold:#e8b84a;--text:#f1ece0;--dim:#9aa1b5;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-*{box-sizing:border-box;margin:0}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif}
-body{display:flex;justify-content:center;background:radial-gradient(circle at 50% 0%,#1d2540,var(--bg) 60%)}
-#app{width:100%;max-width:480px;min-height:100%;padding:20px;display:flex;flex-direction:column;justify-content:center;text-align:center}
-.screen{display:none;animation:fade .8s ease}
-.screen.on{display:block}
-#s-front.on{display:flex;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:flex-end;padding:24px 24px calc(48px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,#0000 35%,#000d 100%),url(front.jpg) center top/cover no-repeat,var(--bg);text-shadow:0 2px 12px #000}
-@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.photo{width:190px;height:190px;border-radius:50%;margin:0 auto 20px;border:3px solid var(--gold);box-shadow:0 0 40px #e8b84a55;object-fit:cover;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:64px;overflow:hidden}
-.photo.sm{width:110px;height:110px;font-size:40px;margin-bottom:14px}
-h1{font-size:30px;color:var(--gold);letter-spacing:1px;margin-bottom:8px}
-h2{font-size:20px;color:var(--gold);margin-bottom:14px}
-.sub{color:var(--dim);font-style:italic;margin-bottom:26px}
-button,input{font:inherit}
-.btn{background:var(--gold);color:#1a1405;border:0;border-radius:30px;padding:14px 34px;font-weight:bold;font-size:17px;cursor:pointer;margin:6px}
-.btn.ghost{background:transparent;color:var(--gold);border:1px solid var(--gold);font-size:14px;padding:8px 18px}
-input[type=text]{width:100%;padding:14px;border-radius:12px;border:1px solid var(--gold);background:var(--card);color:var(--text);font-size:18px;text-align:center;margin-bottom:16px}
-.box{background:var(--card);border:1px solid #2a3150;border-radius:16px;padding:22px;min-height:210px;text-align:left;line-height:1.7;font-size:18px}
-.prog{height:4px;background:#222a44;border-radius:4px;margin:0 0 16px;overflow:hidden}
-.prog i{display:block;height:100%;width:0;background:var(--gold);transition:width .5s}
-.hint{color:var(--dim);font-size:13px;margin-top:10px}
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Arial,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+  canvas{display:block;width:100%;height:100%}
+  .screen{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;background:rgba(0,0,0,.65)}
+  #over{display:none}
+  h1{font-size:42px;margin:0 0 10px;color:#ffcc00}
+  h2{margin:6px 0}
+  p{font-size:18px;margin:6px 20px}
+  button{font-size:24px;padding:14px 40px;margin-top:20px;border:none;border-radius:12px;background:#ffcc00;color:#222;font-weight:bold}
+  #hud{position:absolute;top:10px;left:0;right:0;display:none;justify-content:space-between;padding:0 16px;color:#fff;font-size:22px;font-weight:bold;text-shadow:0 2px 4px #000;pointer-events:none}
 </style>
 </head>
 <body>
-<div id="app">
 
-<!-- 1. FRONT SCREEN -->
-<section class="screen on" id="s-front">
-  <h1 id="gameTitle"></h1>
-  <p class="sub">A story of courage, told for the one who came after.</p>
-  <button class="btn" id="start">Begin</button><br>
-  <button class="btn ghost" id="pick">Choose father’s photo</button>
-  <input type="file" id="file" accept="image/*" hidden>
-</section>
+<canvas id="c"></canvas>
 
-<!-- 2. NAME -->
-<section class="screen" id="s-name">
-  <h2>Before we begin…</h2>
-  <p class="sub">What is your name, traveller?</p>
-  <input type="text" id="nameIn" maxlength="20" placeholder="Enter your name" autocomplete="off">
-  <button class="btn" id="nameGo">Continue</button>
-</section>
+<div id="hud">
+  <span>Score: <span id="score">0</span></span>
+  <span>Coins: <span id="coins">0</span></span>
+</div>
 
-<!-- 3. STORY -->
-<section class="screen" id="s-story">
-  <div class="photo sm" id="photo2">⚔️</div>
-  <div class="prog"><i id="bar"></i></div>
-  <h2 id="chTitle"></h2>
-  <div class="box" id="chText"></div>
-  <p class="hint">Tap the button to continue</p>
-  <button class="btn" id="next">Next</button>
-</section>
+<div id="start" class="screen">
+  <h1>Temple Runner</h1>
+  <p>Swipe left / right to change lane</p>
+  <p>Swipe up or tap to jump</p>
+  <p>Jump over logs, dodge stone walls, collect coins!</p>
+  <button onclick="startGame()">Start</button>
+</div>
 
-<!-- 4. END -->
-<section class="screen" id="s-end">
-  <div class="photo sm" id="photo3">⚔️</div>
-  <h2 id="endTitle"></h2>
-  <div class="box" id="endText"></div><br>
-  <button class="btn" id="again">Play again</button>
-</section>
-
+<div id="over" class="screen">
+  <h1>Game Over</h1>
+  <h2>Score: <span id="fscore">0</span></h2>
+  <h2>Coins: <span id="fcoins">0</span></h2>
+  <p>Best: <span id="best">0</span></p>
+  <button onclick="startGame()">Play Again</button>
 </div>
 
 <script>
-/* ============ EDIT ONLY THIS PART ============ */
-const CONFIG = {
-  gameTitle: "My Father’s Legend",
-  fatherName: "Appa",
-  photo: "father.jpg",   // upload your image to the same repo with this exact name
-  inspiration: "the great warriors of old",
-  intro: "Long ago, in a land of red earth and tall banyan trees, a man was born who would never bow to fear. They called him {father}. This is his story, {name}, and one day it will be yours too.",
-  chapters: [
-    {t:"The Boy of the Village", x:"{father} grew up with little, but his heart was full. He listened to stories of {inspiration} and promised himself he would be brave like them."},
-    {t:"The First Trial", x:"Hard days came. Hunger, doubt and tired hands tried to stop him. But {father} stood up every single time, because giving up was never his way."},
-    {t:"The Fire Within", x:"Like {inspiration}, he fought his own great battles: for his family, for honour, for tomorrow. Every scar on his hands became a lesson."},
-    {t:"The Victory", x:"He won, not with a sword, but with patience and sacrifice. Everything he built, he built so that you, {name}, could stand taller than he did."},
-    {t:"The Gift", x:"His greatest treasure was never gold. It was courage, handed down from father to child. Now it is in your hands, {name}."}
-  ],
-  endTitle: "The Legend Continues",
-  ending: "{name}, you carry {father}’s strength in your name and in your heart. Walk bravely. The next chapter is yours to write."
-};
-/* ============================================ */
+var canvas = document.getElementById("c");
+var ctx = canvas.getContext("2d");
+var W, H, cx, horizon, groundY, laneW;
 
-const $ = id => document.getElementById(id);
-let name = "Traveller", idx = -1, timer = null;
-const fill = s => s.replace(/{name}/g, name).replace(/{father}/g, CONFIG.fatherName).replace(/{inspiration}/g, CONFIG.inspiration);
+var state = "start";
+var objs = [], distance = 0, coins = 0, speed = 0.7;
+var spawnT = 1, off = 0, run = 0, best = 0;
+var player = { lane: 0, lx: 0, jh: 0, jv: 0, air: false };
 
-function show(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
-  $(id).classList.add('on');
+try { best = +localStorage.getItem("trbest") || 0; } catch (e) {}
+
+function resize() {
+  canvas.width = W = window.innerWidth;
+  canvas.height = H = window.innerHeight;
+  cx = W / 2;
+  horizon = H * 0.32;
+  groundY = H * 0.86;
+  laneW = W * 0.3;
+}
+resize();
+window.addEventListener("resize", resize);
+
+function px(lane, z) { return cx + lane * laneW * z; }
+function py(z) { return horizon + (groundY - horizon) * z; }
+
+/* ---------- Controls ---------- */
+function move(d) { player.lane = Math.max(-1, Math.min(1, player.lane + d)); }
+function jump() {
+  if (!player.air) { player.air = true; player.jv = H * 1.1; }
 }
 
-function setPhoto(src){
-  ['photo2','photo3'].forEach(id => {
-    $(id).innerHTML = '<img src="' + src + '" alt="" style="width:100%;height:100%;object-fit:cover">';
-  });
+var sx = 0, sy = 0, tracking = false;
+window.addEventListener("pointerdown", function (e) {
+  if (state !== "play") return;
+  sx = e.clientX; sy = e.clientY; tracking = true;
+});
+window.addEventListener("pointermove", function (e) {
+  if (!tracking) return;
+  var dx = e.clientX - sx, dy = e.clientY - sy;
+  if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) { move(dx > 0 ? 1 : -1); tracking = false; }
+  else if (dy < -30) { jump(); tracking = false; }
+});
+window.addEventListener("pointerup", function () {
+  if (tracking) jump();
+  tracking = false;
+});
+window.addEventListener("keydown", function (e) {
+  if (state !== "play") return;
+  if (e.key === "ArrowLeft") move(-1);
+  if (e.key === "ArrowRight") move(1);
+  if (e.key === "ArrowUp" || e.key === " ") jump();
+});
+
+/* ---------- Game flow ---------- */
+function startGame() {
+  objs = []; distance = 0; coins = 0; speed = 0.7; spawnT = 1;
+  player.lane = 0; player.lx = 0; player.jh = 0; player.jv = 0; player.air = false;
+  document.getElementById("start").style.display = "none";
+  document.getElementById("over").style.display = "none";
+  document.getElementById("hud").style.display = "flex";
+  state = "play";
 }
-function tryPhoto(){
-  const im = new Image();
-  im.onload = () => setPhoto(CONFIG.photo);
-  im.src = CONFIG.photo;
-}
 
-function type(el, text, done){
-  clearInterval(timer);
-  let i = 0; el.textContent = "";
-  timer = setInterval(() => {
-    el.textContent = text.slice(0, ++i);
-    if (i >= text.length){ clearInterval(timer); timer = null; if (done) done(); }
-  }, 28);
-  el.onclick = () => { if (timer){ clearInterval(timer); timer = null; el.textContent = text; if (done) done(); } };
-}
-
-function chapter(){
-  const c = CONFIG.chapters[idx];
-  $('chTitle').textContent = (idx + 1) + ". " + c.t;
-  $('bar').style.width = ((idx + 1) / CONFIG.chapters.length * 100) + "%";
-  $('next').textContent = idx === CONFIG.chapters.length - 1 ? "Finish" : "Next";
-  type($('chText'), fill(c.x));
-}
-
-$('gameTitle').textContent = CONFIG.gameTitle;
-document.title = CONFIG.gameTitle;
-tryPhoto();
-
-$('pick').onclick = () => $('file').click();
-$('file').onchange = e => {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader(); r.onload = () => setPhoto(r.result); r.readAsDataURL(f);
-};
-
-$('start').onclick = () => {
-  let saved = ""; try { saved = localStorage.getItem('fg_name') || ""; } catch(e){}
-  $('nameIn').value = saved; show('s-name');
-};
-
-$('nameGo').onclick = () => {
-  const v = $('nameIn').value.trim();
-  if (!v){ $('nameIn').focus(); return; }
-  name = v; try { localStorage.setItem('fg_name', v); } catch(e){}
-  idx = -1; show('s-story');
-  $('chTitle').textContent = "Prologue";
-  $('bar').style.width = "0";
-  $('next').textContent = "Next";
-  type($('chText'), fill(CONFIG.intro));
-};
-$('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('nameGo').click(); });
-
-$('next').onclick = () => {
-  if (timer){ $('chText').click(); return; }
-  idx++;
-  if (idx >= CONFIG.chapters.length){
-    show('s-end');
-    $('endTitle').textContent = CONFIG.endTitle;
-    type($('endText'), fill(CONFIG.ending));
-    return;
+function endGame() {
+  state = "over";
+  var score = Math.floor(distance) + coins * 10;
+  if (score > best) {
+    best = score;
+    try { localStorage.setItem("trbest", best); } catch (e) {}
   }
-  chapter();
-};
+  document.getElementById("fscore").innerText = score;
+  document.getElementById("fcoins").innerText = coins;
+  document.getElementById("best").innerText = best;
+  document.getElementById("hud").style.display = "none";
+  document.getElementById("over").style.display = "flex";
+}
 
-$('again').onclick = () => { idx = -1; show('s-front'); };
+/* ---------- Spawning ---------- */
+var U0 = Math.log(0.27); // far start position
+
+function spawn() {
+  var lane = Math.floor(Math.random() * 3) - 1;
+  var r = Math.random();
+  if (r < 0.4) objs.push({ type: "low", lane: lane, u: U0 });
+  else if (r < 0.7) objs.push({ type: "tall", lane: lane, u: U0 });
+  else {
+    for (var i = 0; i < 5; i++) objs.push({ type: "coin", lane: lane, u: U0 - i * 0.1 });
+  }
+}
+
+/* ---------- Update ---------- */
+function update(dt) {
+  speed = Math.min(1.8, 0.7 + distance * 0.0005);
+  distance += speed * dt * 20;
+  off += speed * dt * 4;
+  run += speed * dt * 12;
+
+  // lane smoothing
+  player.lx += (player.lane - player.lx) * Math.min(1, dt * 14);
+
+  // jumping
+  if (player.air) {
+    player.jh += player.jv * dt;
+    player.jv -= H * 3.2 * dt;
+    if (player.jh <= 0) { player.jh = 0; player.jv = 0; player.air = false; }
+  }
+
+  // spawn
+  spawnT -= dt;
+  if (spawnT <= 0) {
+    spawn();
+    spawnT = (0.8 + Math.random() * 0.8) / speed;
+  }
+
+  // move + collide
+  for (var i = objs.length - 1; i >= 0; i--) {
+    var o = objs[i];
+    o.u += speed * dt;
+    if (o.u > 0.4) { objs.splice(i, 1); continue; }
+    if (o.u > 0.0862 && o.u < 0.1906 && Math.abs(o.lane - player.lx) < 0.55) {
+      if (o.type === "coin") {
+        coins++;
+        objs.splice(i, 1);
+      } else if (o.type === "tall") {
+        endGame(); return;
+      } else if (o.type === "low" && player.jh < W * 0.06) {
+        endGame(); return;
+      }
+    }
+  }
+
+  document.getElementById("score").innerText = Math.floor(distance) + coins * 10;
+  document.getElementById("coins").innerText = coins;
+}
+
+/* ---------- Drawing ---------- */
+function drawTree(x, y, z) {
+  var tw = W * 0.03 * z, th = W * 0.12 * z;
+  ctx.fillStyle = "#4a2f1a";
+  ctx.fillRect(x - tw / 2, y - th, tw, th);
+  ctx.fillStyle = "#0f3d1c";
+  ctx.beginPath();
+  ctx.arc(x, y - th, W * 0.09 * z, 0, 7);
+  ctx.fill();
+}
+
+function drawObj(o) {
+  var z = Math.exp(o.u) - 0.25;
+  if (z < 0.01) return;
+  var x = px(o.lane, z), y = py(z);
+  if (o.type === "low") {
+    var w = W * 0.24 * z, h = W * 0.07 * z;
+    ctx.fillStyle = "#8b5a2b"; ctx.fillRect(x - w / 2, y - h, w, h);
+    ctx.fillStyle = "#b07a3e"; ctx.fillRect(x - w / 2, y - h, w, h * 0.3);
+  } else if (o.type === "tall") {
+    var w2 = W * 0.22 * z, h2 = W * 0.3 * z;
+    ctx.fillStyle = "#777"; ctx.fillRect(x - w2 / 2, y - h2, w2, h2);
+    ctx.fillStyle = "#555";
+    for (var k = 1; k < 4; k++) ctx.fillRect(x - w2 / 2, y - h2 + (h2 / 4) * k, w2, Math.max(1, 3 * z));
+  } else {
+    var r = W * 0.035 * z;
+    ctx.fillStyle = "#ffd700";
+    ctx.beginPath(); ctx.arc(x, y - W * 0.07 * z, r, 0, 7); ctx.fill();
+    ctx.strokeStyle = "#b8860b"; ctx.lineWidth = Math.max(1, 3 * z); ctx.stroke();
+  }
+}
+
+function drawPlayer() {
+  var z = 0.9;
+  var x = px(player.lx, z), gy = py(z), y = gy - player.jh;
+  var s = W * 0.1 * z;
+  // shadow
+  ctx.fillStyle = "rgba(0,0,0,.35)";
+  ctx.beginPath(); ctx.ellipse(x, gy, s * 0.5, s * 0.15, 0, 0, 7); ctx.fill();
+
+  var sw = player.air ? 0 : Math.sin(run) * s * 0.3;
+  ctx.lineCap = "round";
+  // legs
+  ctx.strokeStyle = "#2b4c9b"; ctx.lineWidth = s * 0.22;
+  ctx.beginPath(); ctx.moveTo(x - s * 0.15, y - s * 0.8); ctx.lineTo(x - s * 0.15 + sw, y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x + s * 0.15, y - s * 0.8); ctx.lineTo(x + s * 0.15 - sw, y); ctx.stroke();
+  // arms
+  ctx.strokeStyle = "#f1c27d"; ctx.lineWidth = s * 0.16;
+  ctx.beginPath(); ctx.moveTo(x - s * 0.32, y - s * 1.45); ctx.lineTo(x - s * 0.32 - sw * 0.8, y - s * 0.95); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x + s * 0.32, y - s * 1.45); ctx.lineTo(x + s * 0.32 + sw * 0.8, y - s * 0.95); ctx.stroke();
+  // body
+  ctx.fillStyle = "#d9822b";
+  ctx.fillRect(x - s * 0.3, y - s * 1.6, s * 0.6, s * 0.85);
+  // head
+  ctx.fillStyle = "#f1c27d";
+  ctx.beginPath(); ctx.arc(x, y - s * 1.9, s * 0.28, 0, 7); ctx.fill();
+  ctx.fillStyle = "#222";
+  ctx.beginPath(); ctx.arc(x, y - s * 2.0, s * 0.28, Math.PI, 0); ctx.fill();
+}
+
+function render() {
+  // sky
+  var g = ctx.createLinearGradient(0, 0, 0, horizon);
+  g.addColorStop(0, "#1b2a49"); g.addColorStop(1, "#ff8c42");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, horizon + 1);
+
+  // jungle ground
+  ctx.fillStyle = "#1f5c2e"; ctx.fillRect(0, horizon, W, H - horizon);
+
+  // road
+  var zb = 1.4;
+  ctx.fillStyle = "#7a5a3a";
+  ctx.beginPath();
+  ctx.moveTo(cx, horizon);
+  ctx.lineTo(px(1.5, zb), py(zb));
+  ctx.lineTo(px(-1.5, zb), py(zb));
+  ctx.closePath(); ctx.fill();
+
+  // lane lines
+  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.25)";
+  [-0.5, 0.5].forEach(function (l) {
+    ctx.beginPath(); ctx.moveTo(px(l, 0), py(0)); ctx.lineTo(px(l, zb), py(zb)); ctx.stroke();
+  });
+  ctx.lineWidth = 4; ctx.strokeStyle = "#e0b25c";
+  [-1.5, 1.5].forEach(function (l) {
+    ctx.beginPath(); ctx.moveTo(px(l, 0), py(0)); ctx.lineTo(px(l, zb), py(zb)); ctx.stroke();
+  });
+
+  // moving stripes + trees
+  var N = 10;
+  for (var i = 0; i < N; i++) {
+    var t = ((i + off) % N) / N;
+    var z = t * t * 1.4;
+    if (z < 0.02) continue;
+    ctx.strokeStyle = "rgba(0,0,0,0.22)"; ctx.lineWidth = 1 + 4 * z;
+    ctx.beginPath(); ctx.moveTo(px(-1.5, z), py(z)); ctx.lineTo(px(1.5, z), py(z)); ctx.stroke();
+    var side = (i % 2 === 0) ? -1 : 1;
+    drawTree(px(side * 2.0, z), py(z), z);
+  }
+
+  // objects (far to near)
+  objs.sort(function (a, b) { return a.u - b.u; });
+  for (var j = 0; j < objs.length; j++) drawObj(objs[j]);
+
+  drawPlayer();
+}
+
+/* ---------- Main loop ---------- */
+var last = 0;
+function loop(ts) {
+  var dt = Math.min(0.05, (ts - last) / 1000 || 0);
+  last = ts;
+  if (state === "play") update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
 </script>
+
 </body>
 </html>
